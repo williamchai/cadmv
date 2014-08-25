@@ -1,21 +1,24 @@
-import tornado.ioloop,tornado.web
+import tornado.ioloop,tornado.web,os
 from cadmv import Result,cacheFile,allIdByName,cacheInit
 
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
         cache = cacheInit(cacheFile)
-        self.write("<html><title>cadmv</title>")
-        self.write("<body><h3><a href=\"http://williamchai.github.io/cadmv/\">cadmv</a> by williamchai</h3> <table border='1'>")
+        results = []
         for oId in allIdByName:
             result = cache.get(oId,None)
             if not result: continue
-            self.write('<tr><td>'+result.officeName+'</td><td>'+result.firstDate+'</td></tr>')
-        self.write('</table></body>')
-        self.write('</html>')
+            results.append((result.officeId, result.officeName, result.firstDate))
+        self.render('index.html', results=results)
         
+SETTINGS = dict(
+    template_path=os.path.join(os.path.dirname(__file__), "templates"),
+    static_path=os.path.join(os.path.dirname(__file__), "static"),
+    debug=True
+)
 application = tornado.web.Application([
     (r"/", MainHandler),
-])
+], **SETTINGS)
 
 if __name__ == "__main__":
     application.listen(8888)

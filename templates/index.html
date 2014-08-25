@@ -1,0 +1,39 @@
+<!DOCYTYPE html>
+<html>
+    <head>
+        <meta type="utf-8"/>
+        <title>cadmv</title>
+        <!-- Bootstrap -->
+        <link href="/static/css/bootstrap.min.css" rel="stylesheet" media="screen">
+        <script src="http://code.jquery.com/jquery.js"></script>
+        <script src="/static/js/bootstrap.min.js"></script>
+    </head>
+    <body>
+        <div class="container-fluid">
+        <div class="row-fluid">
+            <h3>Check the first available appointment date of CA DMV offices</h3>
+            <h4>Project <a href="http://williamchai.github.io/cadmv">cadmv</a> by <a href="https://github.com/williamchai">williamchai</a></h4>
+        </div>
+        </div>
+
+        <div class="span8">
+            <table class="table table table-striped">
+                <tr>
+                    <th>Office Name</th>
+                    <th>First Appointment Data</th>
+                </tr>
+                {% for oId,oName,firstDate in results %}
+                    {% if oId<0 %}
+                    <tr class="success">
+                    {% else %}
+                    <tr>
+                    {%end %}
+                        <td>{{oName}}</td>
+                        <td>{{firstDate}}</td>
+                    </tr>
+                {% end %}
+            </table>
+        </div>
+
+    </body>
+</html>
