@@ -40,7 +40,7 @@ def getAppDate(officeId=617):
     form = {'officeId':officeId, 'numberItems':1, 'taskDL':'true', 'firstName':'y', 'lastName':'c', 'telArea':'213', 'telPrefix':'213', 'telSuffix':'2133', 'resetCheckFields':'true'}
     html = getPage(url, form)
     if not html:
-        return
+        pass
     
     html=html.replace('\n','')
     # print 'start matching...'
@@ -48,9 +48,10 @@ def getAppDate(officeId=617):
     results = re.search(pattern, html)
     officeName = getAllId()[officeId]
     firstDate = 'Unavailable'
-    expireTime = 10
+    expireTime = 2
     if results:
         firstDate = results.group(1)
+        expireTime = 10
         # time.strptime('Wednesday, August 27, 2014 at 1:10 PM','%A, %B %d, %Y at %I:%M %p')
     return Result(officeId, officeName, firstDate, expireTime)
     
