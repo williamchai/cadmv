@@ -1,15 +1,17 @@
 import tornado.ioloop,tornado.web,os
-from cadmv import Result,cacheFile,allIdByName,cacheInit
+from cadmv import Result
+import cadmv
 
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
-        cache = cacheInit(cacheFile)
+        cache = cadmv.cacheInit(cadmv.cacheFile)
         results = []
-        for oId in allIdByName:
+        for oId in cadmv.allIdByName:
             result = cache.get(oId,None)
             if not result: continue
             results.append((result.officeId, result.officeName, result.firstDate))
         self.render('index.html', results=results)
+        # cadmv.getAllOffices()
         
 SETTINGS = dict(
     template_path=os.path.join(os.path.dirname(__file__), "templates"),
