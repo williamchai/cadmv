@@ -7,6 +7,6 @@
 #source $OPENSHIFT_HOMEDIR/python/virtenv/bin/activate
 
 #echo "Executing 'python'"
-#python "$OPENSHIFT_REPO_DIR"/server.py 80
+python "$OPENSHIFT_REPO_DIR"/server.py 80
 
 
