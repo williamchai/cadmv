@@ -5,7 +5,7 @@ import os
 from server import application
 
 ip = os.environ['OPENSHIFT_PYTHON_IP']
-port = os.environ['OPENSHIFT_PYTHON_PORT']
+port = int(os.environ['OPENSHIFT_PYTHON_PORT'])
 
 wsgi_app = tornado.wsgi.WSGIAdapter(application)
 server = wsgiref.simple_server.make_server(ip, port, wsgi_app)
