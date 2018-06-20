@@ -37,14 +37,14 @@ def getPage(url, dataDic=None):
 
 def getAppDate(officeId=617):
     url = 'https://www.dmv.ca.gov/wasapp/foa/findOfficeVisit.do'
-    form = {'officeId':officeId, 'numberItems':1, 'taskDL':'true', 'firstName':'y', 'lastName':'c', 'telArea':'213', 'telPrefix':'213', 'telSuffix':'2133', 'resetCheckFields':'true'}
+    form = {'officeId':officeId, 'numberItems':1, 'taskCID':'true', 'firstName':'y', 'lastName':'c', 'telArea':'213', 'telPrefix':'213', 'telSuffix':'2133', 'resetCheckFields':'true'}
     html = getPage(url, form)
     if not html:
         pass
     
     html=html.replace('\n','')
     # print 'start matching...'
-    pattern = re.compile(r'The first available appointment for this office is on.*?<p class="alert">(.*?)</p>')
+    pattern = re.compile(r'The first available appointment for this office is on.*?<strong>(.*?)</strong>')
     results = re.search(pattern, html)
     officeName = getAllId()[officeId]
     firstDate = 'Unavailable'
