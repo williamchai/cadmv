@@ -8,7 +8,7 @@
 import urllib,urllib2,re,time
 import cPickle as pickle
 
-class Result:
+class Result(object):
     def __init__(self,oId,oName,firstDate,expire):
         self.officeId=oId
         self.officeName=oName
