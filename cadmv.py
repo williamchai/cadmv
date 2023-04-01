@@ -5,8 +5,9 @@
 # @author williamchai
 # @version Aug 24, 2014
 
-import urllib,urllib2,re,time
-import cPickle as pickle
+import urllib,re,time
+import urllib.request
+import pickle
 
 class Result(object):
     def __init__(self,oId,oName,firstDate,expire):
@@ -22,17 +23,17 @@ class Result(object):
 def getPage(url, dataDic=None):
     html = ''; data = ''
     if dataDic:
-        data = urllib.urlencode(dataDic)
+        data = urllib.parse.urlencode(dataDic)
     header = {"User-Agent": "Mozilla/5.0 (Windows NT 5.1) AppleWebKit/534.24 (KHTML, like Gecko) Chrome/11.0.696.68 Safari/534.24"}
-    req = urllib2.Request(url, data, header)
+    req = urllib.request.Request(url, data.encode('utf-8'), header)
     try:
-        f = urllib2.urlopen(req, timeout=10)
+        f = urllib.request.urlopen(req, timeout=10)
         html = f.read()
-    except Exception, e:
-        if isinstance(e, urllib2.HTTPError):
-            print 'HTTP Error: %s' % e.code
+    except Exception as e:
+        if isinstance(e, urllib.request.HTTPError):
+            print('HTTP Error: %s' % e.code)
         else:
-            print 'Error:', str(e)
+            print('Error:', str(e))
     return html
 
 def getAppDate(officeId=617):
@@ -43,7 +44,7 @@ def getAppDate(officeId=617):
         pass
     
     html=html.replace('\n','')
-    # print 'start matching...'
+    # print('start matching...'
     pattern = re.compile(r'The first available appointment for this office is on.*?<strong>(.*?)</strong>')
     results = re.search(pattern, html)
     officeName = getAllId()[officeId]
@@ -234,17 +235,17 @@ def getAllId():
 def cacheInit(cacheFile):
     cache = {}
     try:
-        cache = pickle.load(open(cacheFile))
-        print 'cache file',cacheFile,'found...loaded'
+        cache = pickle.load(open(cacheFile,'rb'))
+        print('cache file',cacheFile,'found...loaded')
     except IOError:
-        pickle.dump({}, open(cacheFile,'w'))
-        print 'load cache file error, create:',cacheFile
+        pickle.dump({}, open(cacheFile,'wb'))
+        print('load cache file error, create:',cacheFile)
     except Exception as e:
-        print type(e),e        
+        print(type(e),e)
     return cache
 
 def cacheFlush(cache,cacheFile):
-    pickle.dump(cache, open(cacheFile,'w'))
+    pickle.dump(cache, open(cacheFile,'wb'))
 
 def cacheSearch(oId):
     global cache,cacheFile
@@ -256,7 +257,7 @@ def cacheSearch(oId):
         if result and result.isExpire(): 
             result = None
     if not result:
-        # print 'no hit'
+        # print('no hit')
         result = getAppDate(oId)
         cache[oId] = result
         cacheFlush(cache,cacheFile)
@@ -266,7 +267,7 @@ def getAllOffices():
     results = []
     for oId in allIdByName:
         result = cacheSearch(oId)
-        print result.officeName, result.firstDate
+        print(result.officeName, result.firstDate)
         results.append((result.officeName, result.firstDate))#, time.ctime(result.expireTime)
     return results
 
@@ -276,11 +277,8 @@ def getOfficeById(oId):
 
 cacheFile='cadmv.data'
 cache = None
-def mycmp(x,y):
-    if x[1]>y[1]: return 1
-    if x[1]<y[1]: return -1
-    return 0
-allIdByName = [oid for oid,_ in sorted(getAllId().iteritems(),cmp=mycmp)]
+
+allIdByName = [oid for oid,_ in sorted(getAllId().items(),key=lambda x:x[1])[:2]]
     
 if __name__ == '__main__':
     getAllOffices()
