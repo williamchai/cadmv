@@ -26,14 +26,17 @@ def get_all():
     return json.dumps(res)
 
 
-if os.environ.get('FLASK_ENV'):
+# Only enable debug mode in explicit development environment
+if os.environ.get('FLASK_ENV') == 'development':
     config = {
-        'address': {'host': '0.0.0.0', 'port': 5000}
+        'DEBUG': True,
+        'address': {'host': '127.0.0.1', 'port': 5000}
     }
 else:
+    # Production configuration - debug disabled, secure defaults
     config = {
-    'DEBUG': True,
-    'address': {'host': '127.0.0.1', 'port': 5000}
+        'DEBUG': False,
+        'address': {'host': '0.0.0.0', 'port': int(os.environ.get('PORT', 5000))}
     }
 app.config.update(config)
 

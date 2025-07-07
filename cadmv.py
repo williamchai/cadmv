@@ -7,7 +7,6 @@
 
 import urllib,re,time
 import urllib.request
-import pickle
 
 class Result(object):
     def __init__(self,oId,oName,firstDate,expire):
@@ -235,17 +234,42 @@ def getAllId():
 def cacheInit(cacheFile):
     cache = {}
     try:
-        cache = pickle.load(open(cacheFile,'rb'))
+        # Use json instead of pickle for safer serialization
+        import json
+        with open(cacheFile.replace('.data', '.json'), 'r') as f:
+            cache_data = json.load(f)
+            # Convert back to Result objects
+            for oId, data in cache_data.items():
+                cache[int(oId)] = Result(
+                    data['officeId'], 
+                    data['officeName'], 
+                    data['firstDate'], 
+                    0  # Set expire to 0 so it recalculates expiry
+                )
+                cache[int(oId)].expireTime = data['expireTime']
         print('cache file',cacheFile,'found...loaded')
-    except IOError:
-        pickle.dump({}, open(cacheFile,'wb'))
+    except (IOError, FileNotFoundError):
+        # Create new cache file
+        with open(cacheFile.replace('.data', '.json'), 'w') as f:
+            json.dump({}, f)
         print('load cache file error, create:',cacheFile)
     except Exception as e:
         print(type(e),e)
     return cache
 
 def cacheFlush(cache,cacheFile):
-    pickle.dump(cache, open(cacheFile,'wb'))
+    import json
+    # Convert Result objects to JSON-serializable format
+    cache_data = {}
+    for oId, result in cache.items():
+        cache_data[str(oId)] = {
+            'officeId': result.officeId,
+            'officeName': result.officeName,
+            'firstDate': result.firstDate,
+            'expireTime': result.expireTime
+        }
+    with open(cacheFile.replace('.data', '.json'), 'w') as f:
+        json.dump(cache_data, f, indent=2)
 
 def cacheSearch(oId):
     global cache,cacheFile
@@ -275,10 +299,10 @@ def getOfficeById(oId):
     result = cacheSearch(oId)
     return result.officeName, result.firstDate
 
-cacheFile='cadmv.data'
+cacheFile='cadmv.json'
 cache = None
 
-allIdByName = [oid for oid,_ in sorted(getAllId().items(),key=lambda x:x[1])[:2]]
+allIdByName = [oid for oid,_ in sorted(getAllId().items(),key=lambda x:x[1])]
     
 if __name__ == '__main__':
     getAllOffices()
